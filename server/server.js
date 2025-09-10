@@ -1,51 +1,75 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import mongoose from 'mongoose';
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import mongoose from "mongoose";
 
 dotenv.config();
-mongoose.connect(process.env.MONGODB_URI, {dbName: "notesapp"}).then(() => {
-    console.log('Connected to MongoDB');
-}).catch(err => {
-    console.error('Error connecting to MongoDB', err);
-});
+mongoose
+  .connect(process.env.MONGODB_URI, { dbName: "notesapp" })
+  .then(() => {
+    console.log("Connected to MongoDB");
+  })
+  .catch((err) => {
+    console.error("Error connecting to MongoDB", err);
+  });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const noteSchema = new mongoose.Schema({
+const noteSchema = new mongoose.Schema(
+  {
     title: String,
     content: String,
-    lastUpdated: { type: Date, default: Date.now }
-}, { collection: 'test-data' } );
+    lastUpdated: { type: Date, default: Date.now },
+  },
+  { collection: "test-data" }
+);
 
-app.use(cors({
-    origin: 'http://localhost:5173'
-}));
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  })
+);
 app.use(express.json());
 
-const Notes = mongoose.model('Notes', noteSchema);
+const Notes = mongoose.model("Notes", noteSchema);
 
-app.get('/api/notes', async (req, res) => {
-    const notes = await Notes.find().sort({lastUpdated: -1})
+app.get("/api/notes", async (req, res) => {
+  try {
+    const notes = await Notes.find().sort({ lastUpdated: -1 });
     res.json(notes);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching notes", error: err });
+  }
 });
 
-app.get('/api/notes/:id', async (req, res) => {
+app.get("/api/notes/:id", async (req, res) => {
+  try {
     const note = await Notes.findById(req.params.id);
     res.json(note);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching note", error: err });
+  }
 });
 
-app.post('/api/notes', async (req, res) => {
+app.post("/api/notes", async (req, res) => {
+  try {
     const newNote = new Notes(req.body);
     await newNote.save();
-})
+  } catch (err) {
+    res.status(500).json({ message: "Error creating note", error: err });
+  }
+});
 
-app.delete('/api/notes/:id', async (req, res) => {
+app.delete("/api/notes/:id", async (req, res) => {
+  try {
     await Notes.findByIdAndDelete(req.params.id);
-    res.json({message: 'Note deleted'});
+    res.json({ message: "Note deleted" });
+  } catch (err) {
+    res.status(500).json({ message: "Error deleting note", error: err });
+  }
 });
 
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
