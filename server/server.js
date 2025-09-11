@@ -56,17 +56,33 @@ app.post("/api/notes", async (req, res) => {
   try {
     const newNote = new Notes(req.body);
     await newNote.save();
+    res.status(201).json(newNote);
   } catch (err) {
     res.status(500).json({ message: "Error creating note", error: err });
   }
 });
 
+
 app.delete("/api/notes/:id", async (req, res) => {
   try {
-    await Notes.findByIdAndDelete(req.params.id);
+    const note = await Notes.findById(req.params.id);
+    await note.deleteOne();
     res.json({ message: "Note deleted" });
   } catch (err) {
     res.status(500).json({ message: "Error deleting note", error: err });
+  }
+});
+
+app.put("/api/notes/:id", async (req, res) => {
+  try {
+    const note = await Notes.findById(req.params.id);
+    note.title = req.body.title;
+    note.content = req.body.content;
+    note.lastUpdated = Date.now(); 
+    await note.save();
+    res.json(note);
+  } catch (err) {
+    res.status(500).json({ message: "Error updating note", error: err });
   }
 });
 

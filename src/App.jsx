@@ -12,6 +12,7 @@ const App = () =>{
         <Navbar theme={theme} setTheme={setTheme}/>
         <Routes>
           <Route path='/' element={<Home />} />
+          <Route path='/note/new' element={<Note />} />
           <Route path='/note/:id' element={<Note />} />
         </Routes>
     </main>

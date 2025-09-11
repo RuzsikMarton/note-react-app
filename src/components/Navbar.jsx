@@ -10,7 +10,7 @@ const Navbar = ({theme, setTheme}) => {
             <h1 className="logo">Notes App</h1>
             <div className="links">
             <Link to="/">Home</Link>
-            <Link to="/note/:id">New Note</Link>
+            <Link to="/note/new">New Note</Link>
         </div>
         </div>
         <Toggle theme={theme} setTheme={setTheme} />
